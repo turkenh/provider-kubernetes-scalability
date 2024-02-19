@@ -1,0 +1,110 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  namespace: crossplane-system
+  name: prometheus-view
+subjects:
+- kind: ServiceAccount
+  namespace: prometheus
+  name: kube-prometheus-stack-prometheus
+roleRef:
+  kind: ClusterRole
+  name: view
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  namespace: crossplane-system
+  name: crossplane-providers
+  labels:
+    release: kube-prometheus-stack
+spec:
+  namespaceSelector:
+    matchNames:
+      - crossplane-system
+  selector:
+    matchExpressions:
+      - key: pkg.crossplane.io/provider
+        operator: Exists
+  podMetricsEndpoints:
+    - port: metrics
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  namespace: crossplane-system
+  name: crossplane-functions
+  labels:
+    release: kube-prometheus-stack
+spec:
+  namespaceSelector:
+    matchNames:
+      - crossplane-system
+  selector:
+    matchExpressions:
+      - key: pkg.crossplane.io/function
+        operator: Exists
+  podMetricsEndpoints:
+    - port: metrics
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  namespace: crossplane-system
+  name: crossplane
+  labels:
+    release: kube-prometheus-stack  
+spec:
+  namespaceSelector:
+    matchNames:
+      - crossplane-system
+  selector:
+    matchExpressions:
+      - key: app
+        operator: In
+        values:
+          - crossplane
+  podMetricsEndpoints:
+    - port: metrics
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  namespace: crossplane-system
+  name: crossplane-rbac-manager
+  labels:
+    release: kube-prometheus-stack
+spec:
+  namespaceSelector:
+    matchNames:
+      - crossplane-system
+  selector:
+    matchExpressions:
+      - key: app
+        operator: In
+        values:
+          - crossplane-rbac-manager
+  podMetricsEndpoints:
+    - port: metrics
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  namespace: default
+  name: event-exporter
+  labels:
+    release: kube-prometheus-stack
+spec:
+  namespaceSelector:
+    matchNames:
+      - default
+  selector:
+    matchExpressions:
+      - key: app
+        operator: In
+        values:
+          - event-exporter
+  podMetricsEndpoints:
+    - port: http
