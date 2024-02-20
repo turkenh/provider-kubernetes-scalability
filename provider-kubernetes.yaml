@@ -24,8 +24,8 @@ spec:
             - name: package-runtime
               args:
                 #- --debug
-                - --poll=10m
-                - --max-reconcile-rate=100
+                - --poll=1m
+                - --max-reconcile-rate=10
               resources:
                 limits:
                   cpu: 500m
